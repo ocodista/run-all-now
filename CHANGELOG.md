@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 - 2026-05-17
+
+- Simplify repository docs and generated benchmark artifacts.
+- Refresh README for npm users.
+- Keep benchmark output on stdout instead of writing generated files.
+
 ## 1.0.0 - 2026-05-17
 
 Initial stable release.

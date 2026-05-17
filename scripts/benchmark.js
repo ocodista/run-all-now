@@ -99,5 +99,3 @@ const summary = {
 };
 
 console.log(JSON.stringify(summary, null, 2));
-fs.mkdirSync(path.join(root, "assets"), { recursive: true });
-fs.writeFileSync(path.join(root, "assets", "benchmark.json"), `${JSON.stringify(summary, null, 2)}\n`);

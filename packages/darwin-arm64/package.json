@@ -1,6 +1,6 @@
 {
   "name": "@run-all-now/darwin-arm64",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Native Rust binary for run-all-now on darwin-arm64.",
   "license": "MIT",
   "repository": {

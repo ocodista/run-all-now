@@ -1,33 +1,26 @@
 # run-all-now
 
-Drop-in `npm-run-all` replacement powered by Rust with zero runtime dependencies.
+Run npm scripts in sequence or parallel without `npm-run-all`'s dependency tree.
 
-`run-all-now` keeps the familiar `npm-run-all`, `run-s`, and `run-p` commands from [`npm-run-all`](https://www.npmjs.com/package/npm-run-all). It moves orchestration into a native Rust binary and keeps the npm package dependency-free.
+`run-all-now` is an API-compatible replacement for [`npm-run-all`](https://www.npmjs.com/package/npm-run-all). It keeps the familiar `npm-run-all`, `run-s`, and `run-p` commands, plus the CommonJS Node API, and uses one native Rust binary for orchestration.
 
 Original package links: [`npm-run-all` on npm](https://www.npmjs.com/package/npm-run-all), [`mysticatea/npm-run-all` on GitHub](https://github.com/mysticatea/npm-run-all).
 
-## Why switch?
-
-| You get | What changes |
-| --- | --- |
-| Zero runtime dependencies | Remove `npm-run-all`'s 9 direct runtime dependencies. |
-| Smaller installs | 17.6 MB `node_modules` footprint becomes 552 KiB in the local fixture. |
-| Faster orchestration | 201 ms becomes 150 ms average in the local no-op benchmark. |
-| Rust core | Scheduling, matching, output handling, and process control run in native code. |
-| Drop-in API | Keep `npm-run-all`, `run-s`, `run-p`, and `require("run-all-now")`. |
-| Multi-platform support | macOS, Linux, and Windows on x64/arm64. |
-
 ## Install
 
-```bash
-npm install --save-dev run-all-now
+```sh
+npm i -D run-all-now
 ```
+
+Node.js 18+ is required for the package API and launchers.
+
+The package does not run `preinstall`, `install`, or `postinstall` scripts. The JavaScript launchers select the matching optional native package at runtime. If the native binary is missing for your platform, `run-all-now` fails loudly instead of silently falling back to slower shell tooling.
 
 Replace the package, not your scripts:
 
 ```diff
-- npm install --save-dev npm-run-all
-+ npm install --save-dev run-all-now
+- npm i -D npm-run-all
++ npm i -D run-all-now
 ```
 
 ```json
@@ -42,11 +35,13 @@ Replace the package, not your scripts:
 
 ## CLI
 
-```bash
+```sh
 run-s clean lint build
 run-p --max-parallel 4 "watch:* -- --color"
 npm-run-all clean --parallel "build:* -- --watch" --sequential test
 ```
+
+`run-s` runs scripts sequentially. `run-p` runs scripts in parallel. `npm-run-all` supports mixed sequential and parallel groups.
 
 Supported compatibility flags:
 
@@ -61,30 +56,37 @@ Supported compatibility flags:
 - `--npm-path <path>`
 - `--` argument forwarding and `{1}`, `{@}`, `{*}`, `{n:-default}`, `{n:=default}` placeholders
 
+Glob-like script patterns use `:` as the separator:
+
+```sh
+run-s build:*
+run-p watch:**
+```
+
 ## Node API
 
 ```js
-const runAll = require("run-all-now");
+const runAll = require('run-all-now')
 
-await runAll(["clean", "lint", "build:*"], {
+await runAll(['clean', 'lint', 'build:*'], {
   parallel: false,
   stdout: process.stdout,
   stderr: process.stderr
-});
+})
 
-await runAll(["watch:* -- --color"], {
+await runAll(['watch:* -- --color'], {
   parallel: true,
   maxParallel: 4,
   printLabel: true
-});
+})
 ```
 
 Resolved values match `npm-run-all`:
 
 ```js
 [
-  { name: "clean", code: 0 },
-  { name: "lint", code: 0 }
+  { name: 'clean', code: 0 },
+  { name: 'lint', code: 0 }
 ]
 ```
 
@@ -94,47 +96,28 @@ Failures reject with `NpmRunAllError` and include `error.results`.
 
 `run-all-now` runs tasks through npm or yarn. It does not reimplement package-manager script semantics. This keeps environment setup, lifecycle behavior, and script argument forwarding compatible with existing projects.
 
-Glob-like script patterns use `:` as the separator:
+Native packages are available for macOS, Linux, and Windows on x64/arm64.
 
-```bash
-run-s build:*
-run-p watch:**
-```
+## Benchmark
 
-## Comparison snapshot
+Local `darwin-arm64` snapshot. Runtime uses `npm run benchmark` with `run-s --silent noop:0`. Lower is better.
 
-Local fixture from `scripts/benchmark.js` on `darwin-arm64` with `run-s --silent noop:0`:
-
-| Metric | npm-run-all | run-all-now |
-| --- | ---: | ---: |
-| Average runtime | 201 ms | 150 ms |
-| Direct runtime deps | 9 | 0 |
-| Installed package roots | 134 | 2 |
-| node_modules size | 17.6 MB | 552 KiB |
-| Root package tarball | 18.6 KB | 6.5 KB |
-| Platform tarball | n/a | 246.7 KB |
-| Peak memory footprint | 24.4 MB | 13.3 MB |
-| Max RSS | 73.1 MB | 73.0 MB |
-
-The main package is small. One optional native package installs for your OS and CPU.
-
-### Dependencies
-
-`run-all-now` removes all direct runtime dependencies from the orchestration package.
+| Metric | `npm-run-all` | `run-all-now` | Improvement |
+| --- | ---: | ---: | ---: |
+| Direct runtime deps | `9` | `0` | `9 fewer` |
+| `node_modules` size | `17.6 MB` | `552 KiB` | `32.6x smaller` |
+| Average runtime | `201 ms` | `150 ms` | `1.34x faster` |
+| Peak memory footprint | `24.4 MB` | `13.3 MB` | `1.83x smaller` |
 
 ```mermaid
 %%{init: {"theme": "dark", "themeVariables": {"xyChart": {"plotColorPalette": "#fb7185,#22c55e"}}}}%%
 xychart-beta
-  title "Dependencies: 9 removed, 0 remaining"
+  title "Dependencies: 9 fewer direct runtime deps"
   x-axis ["direct runtime deps"]
   y-axis "count" 0 --> 10
   bar [9]
   bar [0]
 ```
-
-### Size
-
-The installed `node_modules` footprint is **32.6x smaller** in the local fixture.
 
 ```mermaid
 %%{init: {"theme": "dark", "themeVariables": {"xyChart": {"plotColorPalette": "#fb7185,#22c55e"}}}}%%
@@ -145,10 +128,6 @@ xychart-beta
   bar [17.6]
   bar [0.54]
 ```
-
-### Speed
-
-The published npm path is **1.34x faster** in the local no-op benchmark.
 
 ```mermaid
 %%{init: {"theme": "dark", "themeVariables": {"xyChart": {"plotColorPalette": "#fb7185,#22c55e"}}}}%%
@@ -162,32 +141,23 @@ xychart-beta
 
 In each chart, the first bar is `npm-run-all` and the second green bar is `run-all-now`.
 
-## Package architecture
+Run the benchmark locally:
 
-```text
-run-all-now              # JS bins + CommonJS API bridge, zero third-party deps
-@run-all-now/darwin-arm64
-@run-all-now/darwin-x64
-@run-all-now/linux-arm64
-@run-all-now/linux-x64
-@run-all-now/win32-arm64
-@run-all-now/win32-x64   # optional native Rust binary packages
+```sh
+npm run build
+npm run benchmark
 ```
-
-The main package exposes tiny JavaScript bins for npm portability. They resolve the matching optional platform package, then execute the Rust binary with `RUN_ALL_NOW_BIN_NAME` set to preserve `run-s`, `run-p`, and `npm-run-all` behavior.
-
-The CommonJS API uses the same binary resolver. If `RUN_ALL_NOW_BINARY` is set, the API bridge uses that binary. During development, it falls back to `target/release/run-all-now` or `target/debug/run-all-now`.
 
 ## Development
 
-```bash
+```sh
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 npm test
 npm run pack:check
 ```
 
-The Rust crate has no external crates. The npm package has no third-party runtime dependencies.
+See [PUBLISHING.md](PUBLISHING.md) for release steps.
 
 ## License
 

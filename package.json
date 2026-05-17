@@ -1,6 +1,6 @@
 {
   "name": "run-all-now",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Drop-in npm-run-all replacement powered by Rust with zero runtime dependencies.",
   "keywords": [
     "npm-run-all",
@@ -49,15 +49,15 @@
     "format": "cargo fmt --check",
     "pack:check": "npm pack --dry-run",
     "publish:check": "npm run format && npm run lint && npm test && npm run pack:check",
-    "comparison:image": "node scripts/render-comparison-image.js"
+    "benchmark": "node scripts/benchmark.js"
   },
   "optionalDependencies": {
-    "@run-all-now/darwin-arm64": "1.0.0",
-    "@run-all-now/darwin-x64": "1.0.0",
-    "@run-all-now/linux-arm64": "1.0.0",
-    "@run-all-now/linux-x64": "1.0.0",
-    "@run-all-now/win32-arm64": "1.0.0",
-    "@run-all-now/win32-x64": "1.0.0"
+    "@run-all-now/darwin-arm64": "1.0.1",
+    "@run-all-now/darwin-x64": "1.0.1",
+    "@run-all-now/linux-arm64": "1.0.1",
+    "@run-all-now/linux-x64": "1.0.1",
+    "@run-all-now/win32-arm64": "1.0.1",
+    "@run-all-now/win32-x64": "1.0.1"
   },
   "engines": {
     "node": ">=18"

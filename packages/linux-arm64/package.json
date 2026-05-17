@@ -1,6 +1,6 @@
 {
   "name": "@run-all-now/linux-arm64",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Native Rust binary for run-all-now on linux-arm64.",
   "license": "MIT",
   "repository": {

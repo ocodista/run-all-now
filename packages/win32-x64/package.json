@@ -1,6 +1,6 @@
 {
   "name": "@run-all-now/win32-x64",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Native Rust binary for run-all-now on win32-x64.",
   "license": "MIT",
   "repository": {
