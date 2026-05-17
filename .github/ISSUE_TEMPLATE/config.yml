@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Benchmark methodology
+    url: https://github.com/ocodista/run-all-now/blob/main/docs/benchmark-roadmap.md
+    about: Read this before publishing benchmark claims.

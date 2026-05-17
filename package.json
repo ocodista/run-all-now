@@ -1,0 +1,45 @@
+{
+  "name": "run-all-now",
+  "version": "0.1.0",
+  "description": "Ultra-fast native replacement for npm-run-all",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ocodista/run-all-now.git"
+  },
+  "homepage": "https://github.com/ocodista/run-all-now#readme",
+  "bugs": {
+    "url": "https://github.com/ocodista/run-all-now/issues"
+  },
+  "bin": {
+    "run-all-now": "./bin/run-all-now.js",
+    "npm-run-all": "./bin/run-all-now.js",
+    "run-p": "./bin/run-all-now.js",
+    "run-s": "./bin/run-all-now.js"
+  },
+  "files": [
+    "bin",
+    "native",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build:native": "cargo build --release",
+    "check:native": "cargo check",
+    "bench": "bash bench/startup.sh",
+    "pack:dry": "npm pack --dry-run"
+  },
+  "keywords": [
+    "npm-run-all",
+    "scripts",
+    "parallel",
+    "monorepo",
+    "rust"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

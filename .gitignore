@@ -1,0 +1,13 @@
+/target/
+/node_modules/
+/npm-debug.log*
+.DS_Store
+*.profraw
+*.profdata
+*.svg
+/bench/fixtures/node_modules/
+/bench/fixtures/package-lock.json
+/bench/fixtures/tree/
+/bench/fixtures/out-*/
+/marketing/*.gif
+/marketing/*.cast

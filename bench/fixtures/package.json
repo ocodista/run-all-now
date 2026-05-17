@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "task:a": "node task.mjs a",
+    "task:b": "node task.mjs b",
+    "task:c": "node task.mjs c",
+    "task:d": "node task.mjs d"
+  },
+  "dependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
