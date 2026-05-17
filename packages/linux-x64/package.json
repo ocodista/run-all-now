@@ -1,0 +1,34 @@
+{
+  "name": "@run-all-now/linux-x64",
+  "version": "1.0.0",
+  "description": "Native Rust binary for run-all-now on linux-x64.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ocodista/run-all-now.git",
+    "directory": "packages/linux-x64"
+  },
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "bin/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "run-all-now",
+    "npm-run-all",
+    "rust",
+    "native",
+    "binary",
+    "linux-x64"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

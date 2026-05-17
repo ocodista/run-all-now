@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>run-all-now performance report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+              mono: ["SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"]
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      :root { color-scheme: dark; }
+      body { background: #05070d; }
+      .panel {
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: #0b1020;
+      }
+      .panel-soft {
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: #080d1a;
+      }
+      .eyebrow {
+        color: rgb(148 163 184);
+        font-size: 0.74rem;
+        font-weight: 850;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .axis { color: rgb(100 116 139); }
+    </style>
+  </head>
+  <body class="min-h-screen text-slate-100 antialiased">
+    <main class="mx-auto max-w-7xl px-5 py-8 sm:px-8 lg:py-10">
+      <header class="border-b border-slate-800 pb-8">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-emerald-300">Performance report</span>
+          <span id="platform-pill" class="rounded-full border border-slate-700 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-300">platform</span>
+          <span id="iterations-pill" class="rounded-full border border-slate-700 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-300">runs</span>
+          <span class="rounded-full border border-slate-700 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-300">npm path: JS → Rust</span>
+        </div>
+
+        <div class="mt-7 grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+          <div>
+            <h1 class="max-w-4xl text-4xl font-black tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl">
+              run-all-now vs npm-run-all
+            </h1>
+            <p class="mt-5 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+              A chart-first comparison of runtime, package size, installed footprint, dependencies, and memory for the publishable npm path.
+            </p>
+          </div>
+          <div class="grid grid-cols-2 gap-x-8 gap-y-5 border-l border-slate-800 pl-6" id="kpi-strip"></div>
+        </div>
+      </header>
+
+      <section class="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <article class="panel rounded-3xl p-6 sm:p-7">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p class="eyebrow">Runtime</p>
+              <h2 class="mt-2 text-2xl font-black text-white">Wall-clock average</h2>
+            </div>
+            <p id="speed-badge" class="rounded-full bg-emerald-400 px-4 py-2 text-sm font-black text-slate-950">—</p>
+          </div>
+          <div id="runtime-chart" class="mt-7"></div>
+          <div id="runtime-formula" class="mt-6 rounded-2xl border border-slate-800 bg-black/30 p-5 font-mono text-sm leading-7 text-slate-300"></div>
+        </article>
+
+        <article class="panel rounded-3xl p-6 sm:p-7">
+          <p class="eyebrow">Memory</p>
+          <h2 class="mt-2 text-2xl font-black text-white">Process memory</h2>
+          <div id="memory-chart" class="mt-7"></div>
+          <p class="mt-6 text-sm leading-6 text-slate-400">
+            Measured with <code class="text-slate-200">/usr/bin/time -l</code>. Peak footprint better reflects runner overhead; max RSS is dominated by npm/node child startup.
+          </p>
+        </article>
+      </section>
+
+      <section class="mt-6 grid gap-6 lg:grid-cols-2">
+        <article class="panel rounded-3xl p-6 sm:p-7">
+          <p class="eyebrow">Install footprint</p>
+          <h2 class="mt-2 text-2xl font-black text-white">node_modules size</h2>
+          <div id="install-size-chart" class="mt-7"></div>
+        </article>
+
+        <article class="panel rounded-3xl p-6 sm:p-7">
+          <p class="eyebrow">Dependency count</p>
+          <h2 class="mt-2 text-2xl font-black text-white">Packages and direct deps</h2>
+          <div id="dependency-chart" class="mt-7"></div>
+        </article>
+      </section>
+
+      <section class="mt-6 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <article class="panel rounded-3xl p-6 sm:p-7">
+          <p class="eyebrow">Bundle and download</p>
+          <h2 class="mt-2 text-2xl font-black text-white">npm tarball size</h2>
+          <div id="package-chart" class="mt-7"></div>
+          <p class="mt-6 text-sm leading-6 text-slate-400">
+            run-all-now downloads a small main package plus one platform binary package. The install is still much smaller because it avoids npm-run-all's dependency tree.
+          </p>
+        </article>
+
+        <article class="panel rounded-3xl p-6 sm:p-7">
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p class="eyebrow">Timing distribution</p>
+              <h2 class="mt-2 text-2xl font-black text-white">Per-run line chart</h2>
+            </div>
+            <p id="fixture-pill" class="font-mono text-sm text-slate-400">fixture</p>
+          </div>
+          <div id="line-chart" class="mt-7"></div>
+        </article>
+      </section>
+
+      <section class="mt-6 panel rounded-3xl p-6 sm:p-7">
+        <p class="eyebrow">Data table</p>
+        <h2 class="mt-2 text-2xl font-black text-white">Full comparison</h2>
+        <div id="comparison-table" class="mt-6 overflow-x-auto"></div>
+      </section>
+
+      <section class="mt-6 grid gap-6 lg:grid-cols-[0.75fr_1.25fr]">
+        <article class="panel rounded-3xl p-6 sm:p-7">
+          <p class="eyebrow">Methodology</p>
+          <h2 class="mt-2 text-2xl font-black text-white">What was measured</h2>
+          <div class="mt-6 space-y-3 text-sm leading-6 text-slate-300">
+            <p class="panel-soft rounded-2xl p-4"><strong class="text-white">Timing:</strong> repeated <code>run-s --silent noop:0</code> with identical npm script fixture.</p>
+            <p class="panel-soft rounded-2xl p-4"><strong class="text-white">Size:</strong> npm tarballs and installed <code>node_modules</code> disk usage.</p>
+            <p class="panel-soft rounded-2xl p-4"><strong class="text-white">Deps:</strong> direct runtime dependencies and installed package roots.</p>
+            <p class="panel-soft rounded-2xl p-4"><strong class="text-white">Memory:</strong> macOS <code>/usr/bin/time -l</code> metrics.</p>
+          </div>
+        </article>
+
+        <article class="panel min-w-0 rounded-3xl p-6 sm:p-7">
+          <p class="eyebrow">Raw data</p>
+          <h2 class="mt-2 text-2xl font-black text-white">JSON payload</h2>
+          <pre id="raw-json" class="mt-6 max-h-[30rem] overflow-auto whitespace-pre-wrap break-words rounded-2xl border border-slate-800 bg-black/40 p-5 text-xs leading-5 text-slate-300"></pre>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const timingFallback = {
+        taskCount: 1,
+        iterations: 12,
+        taskPattern: "noop:0",
+        platform: "darwin-arm64",
+        npmRunAll: 200.86085066666666,
+        runAllNow: 150.45159016666665,
+        savedMs: 50.409260500000016,
+        fasterPercent: 25.0966080909691,
+        commands: {
+          npmRunAll: { label: "npm-run-all", average: 200.86085066666666, best: 192.65575, worst: 224.791208, timings: [] },
+          runAllNow: { label: "run-all-now (JS → Rust)", average: 150.45159016666665, best: 144.519291, worst: 153.510167, timings: [] }
+        },
+        comparisons: { runAllNowVsNpmRunAll: { savedMs: 50.409260500000016, fasterPercent: 25.0966080909691, speedup: 1.3350530256553477 } }
+      };
+      const metricsFallback = {
+        platform: "darwin-arm64",
+        fixture: "run-s --silent noop:0",
+        packageSize: {
+          npmRunAllTarballBytes: 18600,
+          npmRunAllUnpackedBytes: 92529,
+          runAllNowMainTarballBytes: 6503,
+          runAllNowMainUnpackedBytes: 17352,
+          runAllNowPlatformTarballBytes: 246706,
+          runAllNowTotalTarballBytes: 253209
+        },
+        installed: {
+          npmRunAllPackageCount: 134,
+          runAllNowPackageCount: 2,
+          npmRunAllNodeModulesKiB: 18000,
+          runAllNowNodeModulesKiB: 552
+        },
+        dependencies: {
+          npmRunAllDirectRuntimeDependencies: 9,
+          runAllNowDirectRuntimeDependencies: 0,
+          runAllNowOptionalPlatformPackages: 6,
+          runAllNowPlatformPackagesInstalled: 1
+        },
+        memory: {
+          npmRunAllMaxRssBytes: 73089024,
+          runAllNowMaxRssBytes: 73023488,
+          npmRunAllPeakFootprintBytes: 24365672,
+          runAllNowPeakFootprintBytes: 13338232,
+          npmRunAllRealSeconds: 0.21,
+          runAllNowRealSeconds: 0.14
+        }
+      };
+
+      const precise = (value) => Number(value).toFixed(3);
+      const pct = (value) => `${Number(value).toFixed(1)}%`;
+      const ms = (value) => `${Math.round(Number(value))} ms`;
+      const bytes = (value) => value >= 1024 * 1024 ? `${(value / 1024 / 1024).toFixed(2)} MB` : `${(value / 1024).toFixed(1)} KB`;
+      const kib = (value) => value >= 1024 ? `${(value / 1024).toFixed(1)} MB` : `${value} KiB`;
+
+      function metric(label, value, note, color) {
+        return `<div><p class="eyebrow">${label}</p><p class="mt-1 text-3xl font-black ${color}">${value}</p><p class="mt-1 text-sm text-slate-500">${note}</p></div>`;
+      }
+
+      function horizontalChart(rows, options = {}) {
+        const max = options.max ?? Math.max(...rows.map((row) => row.value));
+        return `<div class="space-y-5">${rows.map((row) => {
+          const width = Math.max(2, (row.value / max) * 100);
+          return `<div>
+            <div class="mb-2 flex items-end justify-between gap-4">
+              <span class="text-sm font-semibold text-slate-200">${row.label}</span>
+              <span class="font-mono text-sm text-slate-400">${row.display}</span>
+            </div>
+            <div class="h-4 rounded-full bg-slate-800">
+              <div class="h-4 rounded-full ${row.color}" style="width:${width}%"></div>
+            </div>
+            ${row.note ? `<p class="mt-2 text-xs text-slate-500">${row.note}</p>` : ""}
+          </div>`;
+        }).join("")}</div>`;
+      }
+
+      function stackedPackageChart(metrics) {
+        const total = metrics.packageSize.runAllNowTotalTarballBytes;
+        const mainPct = (metrics.packageSize.runAllNowMainTarballBytes / total) * 100;
+        const platformPct = (metrics.packageSize.runAllNowPlatformTarballBytes / total) * 100;
+        const npmPct = (metrics.packageSize.npmRunAllTarballBytes / total) * 100;
+        return `<div class="space-y-6">
+          <div>
+            <div class="mb-2 flex justify-between text-sm"><span class="font-semibold text-slate-200">npm-run-all root tarball</span><span class="font-mono text-slate-400">${bytes(metrics.packageSize.npmRunAllTarballBytes)}</span></div>
+            <div class="h-4 rounded-full bg-slate-800"><div class="h-4 rounded-full bg-rose-400" style="width:${npmPct}%"></div></div>
+          </div>
+          <div>
+            <div class="mb-2 flex justify-between text-sm"><span class="font-semibold text-slate-200">run-all-now download on this platform</span><span class="font-mono text-slate-400">${bytes(total)}</span></div>
+            <div class="flex h-4 overflow-hidden rounded-full bg-slate-800">
+              <div class="bg-emerald-400" style="width:${mainPct}%" title="main package"></div>
+              <div class="bg-cyan-400" style="width:${platformPct}%" title="platform binary"></div>
+            </div>
+            <div class="mt-3 flex flex-wrap gap-4 text-xs text-slate-400">
+              <span><span class="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-400"></span>main ${bytes(metrics.packageSize.runAllNowMainTarballBytes)}</span>
+              <span><span class="mr-1 inline-block h-2 w-2 rounded-full bg-cyan-400"></span>platform ${bytes(metrics.packageSize.runAllNowPlatformTarballBytes)}</span>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      function lineChart(npmRuns, ranRuns) {
+        const width = 760;
+        const height = 260;
+        const padding = 34;
+        const values = [...npmRuns, ...ranRuns];
+        const min = Math.min(...values) - 5;
+        const max = Math.max(...values) + 5;
+        const point = (value, index, length) => {
+          const x = padding + (index / Math.max(1, length - 1)) * (width - padding * 2);
+          const y = height - padding - ((value - min) / (max - min)) * (height - padding * 2);
+          return [x, y];
+        };
+        const pathFor = (runs) => runs.map((value, index) => {
+          const [x, y] = point(value, index, runs.length);
+          return `${index === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+        }).join(" ");
+        const grid = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+          const y = padding + ratio * (height - padding * 2);
+          const label = max - ratio * (max - min);
+          return `<line x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" stroke="#1e293b"/><text x="8" y="${y + 4}" fill="#64748b" font-size="11">${Math.round(label)}</text>`;
+        }).join("");
+        return `<svg viewBox="0 0 ${width} ${height}" class="w-full rounded-2xl border border-slate-800 bg-black/25 p-2" role="img" aria-label="Per-run timing line chart">
+          ${grid}
+          <path d="${pathFor(npmRuns)}" fill="none" stroke="#fb7185" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="${pathFor(ranRuns)}" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="mt-3 flex gap-5 text-xs text-slate-400"><span><span class="mr-1 inline-block h-2 w-2 rounded-full bg-rose-400"></span>npm-run-all</span><span><span class="mr-1 inline-block h-2 w-2 rounded-full bg-emerald-400"></span>run-all-now</span></div>`;
+      }
+
+      function table(headers, rows) {
+        return `<table class="min-w-full text-left text-sm">
+          <thead><tr class="border-b border-slate-800 text-xs uppercase tracking-widest text-slate-500">${headers.map((header) => `<th class="px-4 py-3 font-black">${header}</th>`).join("")}</tr></thead>
+          <tbody>${rows.map((row) => `<tr class="border-b border-slate-800/70 last:border-0">${row.map((cell, index) => `<td class="px-4 py-3 ${index === 0 ? "font-bold text-white" : "font-mono text-slate-300"}">${cell}</td>`).join("")}</tr>`).join("")}</tbody>
+        </table>`;
+      }
+
+      function render(timing, metrics) {
+        const npm = timing.commands.npmRunAll;
+        const ran = timing.commands.runAllNow;
+        const comparison = timing.comparisons.runAllNowVsNpmRunAll;
+        const installSavedKiB = metrics.installed.npmRunAllNodeModulesKiB - metrics.installed.runAllNowNodeModulesKiB;
+        const installSavedPct = (installSavedKiB / metrics.installed.npmRunAllNodeModulesKiB) * 100;
+        const peakSavedBytes = metrics.memory.npmRunAllPeakFootprintBytes - metrics.memory.runAllNowPeakFootprintBytes;
+        const peakSavedPct = (peakSavedBytes / metrics.memory.npmRunAllPeakFootprintBytes) * 100;
+
+        document.getElementById("platform-pill").textContent = timing.platform;
+        document.getElementById("iterations-pill").textContent = `${timing.iterations} runs`;
+        document.getElementById("fixture-pill").textContent = `${metrics.fixture} · ${timing.iterations} iterations`;
+        document.getElementById("speed-badge").textContent = `${comparison.speedup.toFixed(2)}× faster`;
+        document.getElementById("kpi-strip").innerHTML = [
+          metric("Runtime", pct(comparison.fasterPercent), `${ms(comparison.savedMs)} saved`, "text-emerald-300"),
+          metric("Direct deps", `${metrics.dependencies.npmRunAllDirectRuntimeDependencies} → 0`, "zero runtime deps", "text-cyan-300"),
+          metric("Installed size", `${(metrics.installed.npmRunAllNodeModulesKiB / metrics.installed.runAllNowNodeModulesKiB).toFixed(1)}×`, `${pct(installSavedPct)} smaller`, "text-violet-300"),
+          metric("Peak memory", pct(peakSavedPct), `${bytes(peakSavedBytes)} saved`, "text-amber-300")
+        ].join("");
+
+        document.getElementById("runtime-chart").innerHTML = horizontalChart([
+          { label: "npm-run-all", value: npm.average, display: ms(npm.average), color: "bg-rose-400" },
+          { label: "run-all-now (JS → Rust)", value: ran.average, display: ms(ran.average), color: "bg-emerald-400" }
+        ]);
+        document.getElementById("runtime-formula").innerHTML = `<span class="text-cyan-300">${precise(npm.average)} - ${precise(ran.average)} = ${precise(comparison.savedMs)} ms saved</span><br/><span class="text-violet-300">${precise(comparison.savedMs)} / ${precise(npm.average)} = ${pct(comparison.fasterPercent)} faster</span>`;
+
+        document.getElementById("memory-chart").innerHTML = horizontalChart([
+          { label: "npm-run-all peak footprint", value: metrics.memory.npmRunAllPeakFootprintBytes, display: bytes(metrics.memory.npmRunAllPeakFootprintBytes), color: "bg-rose-400" },
+          { label: "run-all-now peak footprint", value: metrics.memory.runAllNowPeakFootprintBytes, display: bytes(metrics.memory.runAllNowPeakFootprintBytes), color: "bg-emerald-400", note: `${bytes(peakSavedBytes)} lower (${pct(peakSavedPct)})` },
+          { label: "npm-run-all max RSS", value: metrics.memory.npmRunAllMaxRssBytes, display: bytes(metrics.memory.npmRunAllMaxRssBytes), color: "bg-rose-300/80" },
+          { label: "run-all-now max RSS", value: metrics.memory.runAllNowMaxRssBytes, display: bytes(metrics.memory.runAllNowMaxRssBytes), color: "bg-cyan-400" }
+        ]);
+
+        document.getElementById("install-size-chart").innerHTML = horizontalChart([
+          { label: "npm-run-all node_modules", value: metrics.installed.npmRunAllNodeModulesKiB, display: kib(metrics.installed.npmRunAllNodeModulesKiB), color: "bg-rose-400" },
+          { label: "run-all-now node_modules", value: metrics.installed.runAllNowNodeModulesKiB, display: kib(metrics.installed.runAllNowNodeModulesKiB), color: "bg-emerald-400", note: `${kib(installSavedKiB)} saved (${pct(installSavedPct)})` }
+        ]);
+
+        document.getElementById("dependency-chart").innerHTML = horizontalChart([
+          { label: "npm-run-all installed package roots", value: metrics.installed.npmRunAllPackageCount, display: metrics.installed.npmRunAllPackageCount, color: "bg-rose-400" },
+          { label: "run-all-now installed package roots", value: metrics.installed.runAllNowPackageCount, display: metrics.installed.runAllNowPackageCount, color: "bg-emerald-400" },
+          { label: "npm-run-all direct runtime deps", value: metrics.dependencies.npmRunAllDirectRuntimeDependencies, display: metrics.dependencies.npmRunAllDirectRuntimeDependencies, color: "bg-amber-400" },
+          { label: "run-all-now direct runtime deps", value: Math.max(metrics.dependencies.runAllNowDirectRuntimeDependencies, 0.4), display: metrics.dependencies.runAllNowDirectRuntimeDependencies, color: "bg-cyan-400" }
+        ], { max: metrics.installed.npmRunAllPackageCount });
+
+        document.getElementById("package-chart").innerHTML = stackedPackageChart(metrics);
+        document.getElementById("line-chart").innerHTML = lineChart(npm.timings, ran.timings);
+
+        document.getElementById("comparison-table").innerHTML = table(
+          ["metric", "npm-run-all", "run-all-now", "delta"],
+          [
+            ["average runtime", ms(npm.average), ms(ran.average), `${ms(comparison.savedMs)} faster`],
+            ["direct runtime deps", metrics.dependencies.npmRunAllDirectRuntimeDependencies, metrics.dependencies.runAllNowDirectRuntimeDependencies, `${metrics.dependencies.npmRunAllDirectRuntimeDependencies} removed`],
+            ["installed package roots", metrics.installed.npmRunAllPackageCount, metrics.installed.runAllNowPackageCount, `${metrics.installed.npmRunAllPackageCount - metrics.installed.runAllNowPackageCount} fewer`],
+            ["node_modules disk usage", kib(metrics.installed.npmRunAllNodeModulesKiB), kib(metrics.installed.runAllNowNodeModulesKiB), `${kib(installSavedKiB)} saved`],
+            ["root package tarball", bytes(metrics.packageSize.npmRunAllTarballBytes), bytes(metrics.packageSize.runAllNowMainTarballBytes), "main package smaller"],
+            ["platform tarball", "n/a", bytes(metrics.packageSize.runAllNowPlatformTarballBytes), "one binary per platform"],
+            ["peak footprint", bytes(metrics.memory.npmRunAllPeakFootprintBytes), bytes(metrics.memory.runAllNowPeakFootprintBytes), `${bytes(peakSavedBytes)} saved`],
+            ["max RSS", bytes(metrics.memory.npmRunAllMaxRssBytes), bytes(metrics.memory.runAllNowMaxRssBytes), "roughly equal"]
+          ]
+        );
+        document.getElementById("raw-json").textContent = JSON.stringify({ timing, metrics }, null, 2);
+      }
+
+      Promise.all([
+        fetch("../assets/benchmark.json").then((response) => response.ok ? response.json() : timingFallback).catch(() => timingFallback),
+        fetch("../assets/package-metrics.json").then((response) => response.ok ? response.json() : metricsFallback).catch(() => metricsFallback)
+      ]).then(([timing, metrics]) => render(timing, metrics));
+    </script>
+  </body>
+</html>

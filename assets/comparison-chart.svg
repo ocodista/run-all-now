@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#05070d"/>
+  <g>
+    <rect x="56" y="44" width="187" height="34" rx="17" fill="#0b1220" stroke="#263244"/>
+    <text x="149.5" y="67" fill="#a7b3c8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="800" text-anchor="middle">ZERO DEPENDENCIES</text>
+  </g>
+  <g>
+    <rect x="248" y="44" width="115" height="34" rx="17" fill="#0b1220" stroke="#263244"/>
+    <text x="305.5" y="67" fill="#a7b3c8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="800" text-anchor="middle">RUST CORE</text>
+  </g>
+  <g>
+    <rect x="372" y="44" width="160" height="34" rx="17" fill="#0b1220" stroke="#263244"/>
+    <text x="452" y="67" fill="#a7b3c8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="800" text-anchor="middle">API COMPATIBLE</text>
+  </g>
+  <g>
+    <rect x="536" y="44" width="160" height="34" rx="17" fill="#0b1220" stroke="#263244"/>
+    <text x="616" y="67" fill="#a7b3c8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="12" font-weight="800" text-anchor="middle">MULTI-PLATFORM</text>
+  </g>
+
+  <text x="56" y="128" fill="#ffffff" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="50" font-weight="900">Drop in run-all-now.</text>
+  <text x="56" y="178" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="650">Remove dependencies. Cut install size. Gain speed.</text>
+  <text x="56" y="218" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="17" font-weight="500">Measured on darwin-arm64: JS npm launcher → Rust binary</text>
+
+  <g>
+    <rect x="56" y="270" width="542" height="280" rx="26" fill="#0b1020" stroke="#1f2a3d"/>
+    <text x="90" y="318" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="26" font-weight="850">Dependencies</text>
+    <text x="90" y="348" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500">Direct runtime dependencies</text>
+    <text x="90" y="378" fill="#6ee7b7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="800">9 → 0 dependencies</text>
+
+    <text x="90" y="390" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700">npm-run-all</text>
+    <text x="564" y="390" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="end">9</text>
+    <rect x="90" y="402" width="474" height="18" rx="9" fill="#1e293b"/>
+    <rect x="90" y="402" width="474" height="18" rx="9" fill="#fb7185"/>
+
+    <text x="90" y="444" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700">run-all-now</text>
+    <text x="564" y="444" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="end">0</text>
+    <rect x="90" y="456" width="474" height="18" rx="9" fill="#1e293b"/>
+    <rect x="90" y="456" width="4.213333333333333" height="18" rx="9" fill="#34d399"/>
+  </g>
+
+  <g>
+    <rect x="602" y="270" width="542" height="280" rx="26" fill="#0b1020" stroke="#1f2a3d"/>
+    <text x="636" y="318" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="26" font-weight="850">Speed</text>
+    <text x="636" y="348" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500">Average wall-clock runtime</text>
+    <text x="636" y="378" fill="#6ee7b7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="800">50 ms saved · 25.1% faster</text>
+
+    <text x="636" y="390" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700">npm-run-all</text>
+    <text x="1110" y="390" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="end">201 ms</text>
+    <rect x="636" y="402" width="474" height="18" rx="9" fill="#1e293b"/>
+    <rect x="636" y="402" width="474" height="18" rx="9" fill="#fb7185"/>
+
+    <text x="636" y="444" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700">run-all-now</text>
+    <text x="1110" y="444" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="end">150 ms</text>
+    <rect x="636" y="456" width="474" height="18" rx="9" fill="#1e293b"/>
+    <rect x="636" y="456" width="355.04207764880647" height="18" rx="9" fill="#34d399"/>
+  </g>
+
+  <g>
+    <rect x="56" y="558" width="542" height="280" rx="26" fill="#0b1020" stroke="#1f2a3d"/>
+    <text x="90" y="606" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="26" font-weight="850">Size</text>
+    <text x="90" y="636" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500">Installed node_modules footprint</text>
+    <text x="90" y="666" fill="#6ee7b7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="800">17.0 MB saved · 96.9% smaller</text>
+
+    <text x="90" y="678" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700">npm-run-all</text>
+    <text x="564" y="678" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="end">17.6 MB</text>
+    <rect x="90" y="690" width="474" height="18" rx="9" fill="#1e293b"/>
+    <rect x="90" y="690" width="474" height="18" rx="9" fill="#fb7185"/>
+
+    <text x="90" y="732" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700">run-all-now</text>
+    <text x="564" y="732" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="end">552 KiB</text>
+    <rect x="90" y="744" width="474" height="18" rx="9" fill="#1e293b"/>
+    <rect x="90" y="744" width="14.536" height="18" rx="9" fill="#34d399"/>
+  </g>
+
+  <g>
+    <rect x="602" y="558" width="542" height="280" rx="26" fill="#0b1020" stroke="#1f2a3d"/>
+    <text x="636" y="606" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="26" font-weight="850">Memory</text>
+    <text x="636" y="636" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="15" font-weight="500">Peak process footprint</text>
+    <text x="636" y="666" fill="#6ee7b7" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="16" font-weight="800">10.5 MB saved · 45.3% lower</text>
+
+    <text x="636" y="678" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700">npm-run-all</text>
+    <text x="1110" y="678" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="end">23.2 MB</text>
+    <rect x="636" y="690" width="474" height="18" rx="9" fill="#1e293b"/>
+    <rect x="636" y="690" width="474" height="18" rx="9" fill="#fb7185"/>
+
+    <text x="636" y="732" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14" font-weight="700">run-all-now</text>
+    <text x="1110" y="732" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14" font-weight="700" text-anchor="end">12.7 MB</text>
+    <rect x="636" y="744" width="474" height="18" rx="9" fill="#1e293b"/>
+    <rect x="636" y="744" width="259.47660987967004" height="18" rx="9" fill="#34d399"/>
+  </g>
+</svg>

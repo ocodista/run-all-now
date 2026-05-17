@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>run-all-now implementation notes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 antialiased">
+    <main class="mx-auto max-w-6xl px-6 py-10">
+      <header class="mb-10 rounded-3xl border border-emerald-400/20 bg-slate-900/70 p-8 shadow-2xl">
+        <p class="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">wiki · delivery notes</p>
+        <h1 class="text-4xl font-black tracking-tight md:text-6xl">run-all-now</h1>
+        <p class="mt-4 max-w-3xl text-lg text-slate-300">A zero-third-party-dependency Rust replacement for <code class="rounded bg-slate-800 px-2 py-1">npm-run-all</code>, packaged for npm with compatible CLI commands and Node API.</p>
+        <nav class="mt-6 flex flex-wrap gap-2 text-sm">
+          <a class="rounded-full bg-emerald-400 px-4 py-2 font-bold text-slate-950" href="#page-1">1 · Goal</a>
+          <a class="rounded-full bg-slate-800 px-4 py-2 text-slate-200" href="#page-2">2 · UX</a>
+          <a class="rounded-full bg-slate-800 px-4 py-2 text-slate-200" href="#page-3">3 · Core</a>
+          <a class="rounded-full bg-slate-800 px-4 py-2 text-slate-200" href="#page-4">4 · API</a>
+          <a class="rounded-full bg-slate-800 px-4 py-2 text-slate-200" href="#page-5">5 · Release</a>
+          <a class="rounded-full bg-slate-800 px-4 py-2 text-slate-200" href="#page-6">6 · Verification</a>
+        </nav>
+      </header>
+
+      <section id="page-1" class="mb-8 rounded-3xl border border-slate-800 bg-slate-900 p-8">
+        <p class="text-sm font-bold uppercase tracking-widest text-emerald-300">Page 1</p>
+        <h2 class="mt-2 text-3xl font-black">Problem and outcome</h2>
+        <div class="prose prose-invert mt-5 max-w-none prose-pre:bg-slate-950">
+          <p><strong>Problem:</strong> <code>npm-run-all</code> is ergonomic but old, dependency-heavy, and JavaScript-bound for orchestration.</p>
+          <p><strong>Outcome:</strong> this repo contains a native Rust runner, npm-compatible commands, Node API wrapper, tests, benchmark script, comparison image, and release packaging plan.</p>
+          <ul>
+            <li>Private GitHub repo created: <code>ocodista/run-all-now</code>.</li>
+            <li>One-line product description added to <code>package.json</code> and README.</li>
+            <li>Comparison chart generated at <code>assets/comparison-chart.svg</code>.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="page-2" class="mb-8 rounded-3xl border border-slate-800 bg-slate-900 p-8">
+        <p class="text-sm font-bold uppercase tracking-widest text-emerald-300">Page 2</p>
+        <h2 class="mt-2 text-3xl font-black">User-facing compatibility</h2>
+        <pre class="mt-5 overflow-x-auto rounded-2xl bg-slate-950 p-5 text-sm text-emerald-100"><code>run-s clean lint build
+run-p --max-parallel 4 watch:*
+npm-run-all clean --parallel build:* --sequential test</code></pre>
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl bg-slate-950 p-5">
+            <h3 class="font-bold text-white">Supported</h3>
+            <p class="mt-2 text-slate-300">Sequential/parallel groups, glob matching, labels, aggregate output, race mode, placeholders, <code>--npm-path</code>, config forwarding, and silent mode.</p>
+          </div>
+          <div class="rounded-2xl bg-slate-950 p-5">
+            <h3 class="font-bold text-white">Kept boring</h3>
+            <p class="mt-2 text-slate-300">The CLI preserves npm script execution semantics by calling npm/yarn instead of reimplementing package-manager behavior.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-3" class="mb-8 rounded-3xl border border-slate-800 bg-slate-900 p-8">
+        <p class="text-sm font-bold uppercase tracking-widest text-emerald-300">Page 3</p>
+        <h2 class="mt-2 text-3xl font-black">Rust core architecture</h2>
+        <div class="mt-5 grid gap-4 md:grid-cols-3">
+          <div class="rounded-2xl bg-slate-950 p-5"><code>cli.rs</code><p class="mt-2 text-slate-300">Argument parser compatible with npm-run-all command modes.</p></div>
+          <div class="rounded-2xl bg-slate-950 p-5"><code>glob.rs</code><p class="mt-2 text-slate-300">Dependency-free task matching and argument placeholder expansion.</p></div>
+          <div class="rounded-2xl bg-slate-950 p-5"><code>runner.rs</code><p class="mt-2 text-slate-300">Parallel scheduler, process groups, output labeling, aggregate output, and failure handling.</p></div>
+          <div class="rounded-2xl bg-slate-950 p-5"><code>json.rs</code><p class="mt-2 text-slate-300">Small JSON parser for package metadata and API bridge payloads.</p></div>
+          <div class="rounded-2xl bg-slate-950 p-5"><code>package.rs</code><p class="mt-2 text-slate-300">Reads package scripts in declaration order.</p></div>
+          <div class="rounded-2xl bg-slate-950 p-5"><code>shell.rs</code><p class="mt-2 text-slate-300">Shell-like splitting and quoting for forwarded arguments.</p></div>
+        </div>
+      </section>
+
+      <section id="page-4" class="mb-8 rounded-3xl border border-slate-800 bg-slate-900 p-8">
+        <p class="text-sm font-bold uppercase tracking-widest text-emerald-300">Page 4</p>
+        <h2 class="mt-2 text-3xl font-black">Node API bridge</h2>
+        <pre class="mt-5 overflow-x-auto rounded-2xl bg-slate-950 p-5 text-sm text-emerald-100"><code>const runAll = require("run-all-now");
+await runAll(["clean", "build:*"], { stdout: process.stdout });</code></pre>
+        <p class="mt-5 text-slate-300">The CommonJS API writes a small JSON request into a temporary directory, invokes the native binary in API mode, streams stdout/stderr when requested, and resolves with <code>{ name, code }</code> results. Failures reject with <code>NpmRunAllError</code>.</p>
+      </section>
+
+      <section id="page-5" class="mb-8 rounded-3xl border border-slate-800 bg-slate-900 p-8">
+        <p class="text-sm font-bold uppercase tracking-widest text-emerald-300">Page 5</p>
+        <h2 class="mt-2 text-3xl font-black">npm release model</h2>
+        <div class="mt-5 rounded-2xl bg-slate-950 p-5 font-mono text-sm text-slate-200">
+          run-all-now<br />
+          ├─ @run-all-now/darwin-arm64<br />
+          ├─ @run-all-now/darwin-x64<br />
+          ├─ @run-all-now/linux-arm64<br />
+          ├─ @run-all-now/linux-x64<br />
+          ├─ @run-all-now/win32-arm64<br />
+          └─ @run-all-now/win32-x64
+        </div>
+        <p class="mt-5 text-slate-300">The main package has no third-party runtime dependencies. It exposes tiny JavaScript npm bins and a CommonJS API bridge that resolve the matching optional platform package, then execute the Rust binary.</p>
+      </section>
+
+      <section id="page-6" class="rounded-3xl border border-slate-800 bg-slate-900 p-8">
+        <p class="text-sm font-bold uppercase tracking-widest text-emerald-300">Page 6</p>
+        <h2 class="mt-2 text-3xl font-black">Verification and proof</h2>
+        <img class="mt-5 rounded-2xl border border-slate-800" src="../assets/comparison-chart.svg" alt="run-all-now comparison charts" />
+        <div class="mt-5 grid gap-4 md:grid-cols-3">
+          <div class="rounded-2xl bg-slate-950 p-5"><strong>Rust tests</strong><p class="text-slate-300">15 unit tests across parser, glob, shell, package, and runner modules.</p></div>
+          <div class="rounded-2xl bg-slate-950 p-5"><strong>Node tests</strong><p class="text-slate-300">7 integration tests covering CLI and API behavior.</p></div>
+          <div class="rounded-2xl bg-slate-950 p-5"><strong>Quality gates</strong><p class="text-slate-300"><code>cargo fmt</code>, <code>cargo clippy -D warnings</code>, <code>npm test</code>, and <code>npm pack --dry-run</code>.</p></div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

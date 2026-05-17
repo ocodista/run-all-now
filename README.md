@@ -1,159 +1,194 @@
 # run-all-now
 
-Experimental Rust + npm scaffold for a future npm-run-all replacement.
+Drop-in `npm-run-all` replacement powered by Rust with zero runtime dependencies.
 
-Current alpha supports `--help`, `--version`, and scaffold output only. It does not run npm scripts yet.
+`run-all-now` keeps the familiar `npm-run-all`, `run-s`, and `run-p` commands from [`npm-run-all`](https://www.npmjs.com/package/npm-run-all). It moves orchestration into a native Rust binary and keeps the npm package dependency-free.
 
-The goal is a native command that runs npm scripts in parallel with low startup overhead after compatibility is implemented and verified.
+Original package links: [`npm-run-all` on npm](https://www.npmjs.com/package/npm-run-all), [`mysticatea/npm-run-all` on GitHub](https://github.com/mysticatea/npm-run-all).
 
-## Status
+## Why switch?
 
-Use this package for development and benchmark exploration only. Do not replace `npm-run-all` in CI or production projects yet.
+| You get | What changes |
+| --- | --- |
+| Zero runtime dependencies | Remove `npm-run-all`'s 9 direct runtime dependencies. |
+| Smaller installs | 17.6 MB `node_modules` footprint becomes 552 KiB in the local fixture. |
+| Faster orchestration | 201 ms becomes 150 ms average in the local no-op benchmark. |
+| Rust core | Scheduling, matching, output handling, and process control run in native code. |
+| Drop-in API | Keep `npm-run-all`, `run-s`, `run-p`, and `require("run-all-now")`. |
+| Multi-platform support | macOS, Linux, and Windows on x64/arm64. |
 
-Implemented today:
-
-- Rust CLI skeleton with `--help` and `--version`.
-- Default scaffold output from the native binary.
-- Argument capture with a warning when compatibility execution is requested.
-- npm wrapper that launches a local native binary from the package directory.
-
-Not implemented yet:
-
-- `package.json` script resolution.
-- Parallel or serial task execution.
-- `npm-run-all`, `run-p`, and `run-s` behavior parity.
-- npm lifecycle environment handling.
-- Exit-code, signal, log-prefix, and glob compatibility.
-
-See [`docs/compatibility-matrix.md`](docs/compatibility-matrix.md) for the current compatibility target.
-
-## Install from source/current alpha
-
-Requirements:
-
-- Rust stable.
-- Node.js 18+ and npm.
-
-Build from a source checkout:
+## Install
 
 ```bash
-git clone https://github.com/ocodista/run-all-now.git
-cd run-all-now
-npm install
-npm run build:native
-node bin/run-all-now.js --version
+npm install --save-dev run-all-now
 ```
 
-The npm wrapper searches for a binary in `native/<platform>-<arch>/`, then `target/release/`, then `target/debug/`. Current alpha releases do not ship prebuilt binaries.
+Replace the package, not your scripts:
 
-## Current usage
+```diff
+- npm install --save-dev npm-run-all
++ npm install --save-dev run-all-now
+```
 
-These commands work today:
+```json
+{
+  "scripts": {
+    "build": "run-s clean build:*",
+    "dev": "run-p watch:*",
+    "ci": "npm-run-all --silent lint test build"
+  }
+}
+```
+
+## CLI
 
 ```bash
-cargo run -- --help
-cargo run -- --version
-node bin/run-all-now.js --help
-node bin/run-all-now.js --version
+run-s clean lint build
+run-p --max-parallel 4 "watch:* -- --color"
+npm-run-all clean --parallel "build:* -- --watch" --sequential test
 ```
 
-Passing npm-run-all-style arguments only prints scaffold output and a warning:
+Supported compatibility flags:
+
+- `-c`, `--continue-on-error`
+- `-l`, `--print-label`
+- `-n`, `--print-name`
+- `-p`, `--parallel`
+- `-s`, `--sequential`, `--serial`, `--silent` in `run-s` / `run-p`
+- `-r`, `--race`
+- `--aggregate-output`
+- `--max-parallel <number>`
+- `--npm-path <path>`
+- `--` argument forwarding and `{1}`, `{@}`, `{*}`, `{n:-default}`, `{n:=default}` placeholders
+
+## Node API
+
+```js
+const runAll = require("run-all-now");
+
+await runAll(["clean", "lint", "build:*"], {
+  parallel: false,
+  stdout: process.stdout,
+  stderr: process.stderr
+});
+
+await runAll(["watch:* -- --color"], {
+  parallel: true,
+  maxParallel: 4,
+  printLabel: true
+});
+```
+
+Resolved values match `npm-run-all`:
+
+```js
+[
+  { name: "clean", code: 0 },
+  { name: "lint", code: 0 }
+]
+```
+
+Failures reject with `NpmRunAllError` and include `error.results`.
+
+## Compatibility
+
+`run-all-now` runs tasks through npm or yarn. It does not reimplement package-manager script semantics. This keeps environment setup, lifecycle behavior, and script argument forwarding compatible with existing projects.
+
+Glob-like script patterns use `:` as the separator:
 
 ```bash
-node bin/run-all-now.js --parallel lint test
+run-s build:*
+run-p watch:**
 ```
 
-Expected current behavior: the command exits without running `lint` or `test`.
+## Comparison snapshot
 
-## Planned compatibility
+Local fixture from `scripts/benchmark.js` on `darwin-arm64` with `run-s --silent noop:0`:
 
-The target is npm-run-all-compatible behavior for common script workflows, once fixtures and tests verify each case.
+| Metric | npm-run-all | run-all-now |
+| --- | ---: | ---: |
+| Average runtime | 201 ms | 150 ms |
+| Direct runtime deps | 9 | 0 |
+| Installed package roots | 134 | 2 |
+| node_modules size | 17.6 MB | 552 KiB |
+| Root package tarball | 18.6 KB | 6.5 KB |
+| Platform tarball | n/a | 246.7 KB |
+| Peak memory footprint | 24.4 MB | 13.3 MB |
+| Max RSS | 73.1 MB | 73.0 MB |
 
-Planned areas:
+The main package is small. One optional native package installs for your OS and CPU.
 
-- `npm-run-all --parallel`, `--serial`, `--continue-on-error`, `--race`, `--print-label`, and `--silent`.
-- `run-p` and `run-s` aliases.
-- npm lifecycle environment variables and `PATH` behavior.
-- Task glob expansion that matches npm-run-all.
-- Exit-code and signal propagation.
+### Dependencies
 
-Do not use it as a drop-in replacement until the compatibility matrix marks the relevant rows as verified.
+`run-all-now` removes all direct runtime dependencies from the orchestration package.
 
-## Benchmarks
-
-Current benchmark coverage is startup-only. It compares version output for `npm-run-all` and `run-all-now`. These numbers do not measure script execution, scheduling throughput, memory under task fan-out, or compatibility.
-
-Caveat: the native command does less work today. Treat these numbers as startup overhead data, not proof of replacement performance.
-
-Reproduce the maintained startup benchmark:
-
-```bash
-npm run build:native
-bash bench/startup.sh
+```mermaid
+%%{init: {"theme": "dark", "themeVariables": {"xyChart": {"plotColorPalette": "#fb7185,#22c55e"}}}}%%
+xychart-beta
+  title "Dependencies: 9 removed, 0 remaining"
+  x-axis ["direct runtime deps"]
+  y-axis "count" 0 --> 10
+  bar [9]
+  bar [0]
 ```
 
-Local startup measurement from 2026-05-17:
+### Size
 
-| Command | Mean | Min | Max | Runs |
-| --- | ---: | ---: | ---: | ---: |
-| `bench/fixtures/node_modules/.bin/npm-run-all --version` | 26.5 ms ± 1.2 ms | 24.4 ms | 28.7 ms | 30 |
-| `target/release/run-all-now --version` | 1.4 ms ± 0.3 ms | 1.1 ms | 2.1 ms | 30 |
+The installed `node_modules` footprint is **32.6x smaller** in the local fixture.
 
-Environment:
+```mermaid
+%%{init: {"theme": "dark", "themeVariables": {"xyChart": {"plotColorPalette": "#fb7185,#22c55e"}}}}%%
+xychart-beta
+  title "Installed size: 32.6x smaller"
+  x-axis ["node_modules MB"]
+  y-axis "MB" 0 --> 18
+  bar [17.6]
+  bar [0.54]
+```
 
-- Fixture: [`bench/fixtures/package.json`](bench/fixtures/package.json) with `npm-run-all` v4.1.5 installed.
-- Tooling: hyperfine 1.20.0, Node v24.15.0, npm 11.12.1, Rust 1.91.1.
-- Machine: macOS/Darwin 25.2.0 arm64, Apple M2 Pro, 16 GB RAM.
+### Speed
 
-Hyperfine warned that the native command took less than 5 ms, so shell timing precision can affect the exact native result.
+The published npm path is **1.34x faster** in the local no-op benchmark.
 
-See [`docs/benchmark-roadmap.md`](docs/benchmark-roadmap.md) and [`bench/README.md`](bench/README.md) for benchmark methodology.
+```mermaid
+%%{init: {"theme": "dark", "themeVariables": {"xyChart": {"plotColorPalette": "#fb7185,#22c55e"}}}}%%
+xychart-beta
+  title "Speed: 1.34x faster"
+  x-axis ["average runtime ms"]
+  y-axis "ms" 0 --> 220
+  bar [201]
+  bar [150]
+```
 
-## Architecture
+In each chart, the first bar is `npm-run-all` and the second green bar is `run-all-now`.
 
-Current code:
+## Package architecture
 
-- [`src/main.rs`](src/main.rs) contains the Clap-based CLI scaffold.
-- [`bin/run-all-now.js`](bin/run-all-now.js) locates and launches the native binary.
-- [`bench/`](bench/) contains startup, stress, memory, and flamegraph scripts.
+```text
+run-all-now              # JS bins + CommonJS API bridge, zero third-party deps
+@run-all-now/darwin-arm64
+@run-all-now/darwin-x64
+@run-all-now/linux-arm64
+@run-all-now/linux-x64
+@run-all-now/win32-arm64
+@run-all-now/win32-x64   # optional native Rust binary packages
+```
 
-Planned native modules:
+The main package exposes tiny JavaScript bins for npm portability. They resolve the matching optional platform package, then execute the Rust binary with `RUN_ALL_NOW_BIN_NAME` set to preserve `run-s`, `run-p`, and `npm-run-all` behavior.
 
-- Script resolver for `package.json` scripts and npm-run-all patterns.
-- Scheduler for serial and parallel groups.
-- Process supervisor for child processes, signals, and exit rules.
-- Output renderer for grouped logs and CI-safe output.
-- Compatibility shim for `npm-run-all`, `run-p`, and `run-s` aliases.
-
-See [`docs/architecture.md`](docs/architecture.md) and [`docs/performance-hypotheses.md`](docs/performance-hypotheses.md) for the deeper design notes.
+The CommonJS API uses the same binary resolver. If `RUN_ALL_NOW_BINARY` is set, the API bridge uses that binary. During development, it falls back to `target/release/run-all-now` or `target/debug/run-all-now`.
 
 ## Development
 
-Useful commands:
-
 ```bash
-npm run check:native
-npm run build:native
 cargo fmt --check
-cargo clippy -- -D warnings
-cargo test
-npm run bench
-npm run pack:dry
+cargo clippy --all-targets -- -D warnings
+npm test
+npm run pack:check
 ```
 
-Before adding performance claims, add fixtures, raw commands, environment details, and a compatibility note. See [`docs/research-notes.md`](docs/research-notes.md).
-
-## Roadmap
-
-- Add golden compatibility fixtures for common npm-run-all workflows.
-- Implement script resolution and npm lifecycle environment behavior.
-- Implement serial and parallel execution.
-- Match exit-code, signal, logging, and glob behavior.
-- Add regression benchmarks after behavior parity exists.
-- Ship prebuilt npm binaries for supported platforms.
-
-Detailed plans live in [`docs/implementation-roadmap.md`](docs/implementation-roadmap.md), [`docs/benchmark-roadmap.md`](docs/benchmark-roadmap.md), and [`docs/launch-checklist.md`](docs/launch-checklist.md).
+The Rust crate has no external crates. The npm package has no third-party runtime dependencies.
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+MIT

@@ -1,45 +1,64 @@
 {
   "name": "run-all-now",
-  "version": "0.1.0",
-  "description": "Ultra-fast native replacement for npm-run-all",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ocodista/run-all-now.git"
-  },
+  "version": "1.0.0",
+  "description": "Drop-in npm-run-all replacement powered by Rust with zero runtime dependencies.",
+  "keywords": [
+    "npm-run-all",
+    "run-s",
+    "run-p",
+    "npm-scripts",
+    "task-runner",
+    "parallel",
+    "zero-dependency",
+    "rust",
+    "cross-platform"
+  ],
   "homepage": "https://github.com/ocodista/run-all-now#readme",
   "bugs": {
     "url": "https://github.com/ocodista/run-all-now/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ocodista/run-all-now.git"
+  },
+  "license": "MIT",
+  "author": "Caio Borghi",
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
   "bin": {
-    "run-all-now": "./bin/run-all-now.js",
-    "npm-run-all": "./bin/run-all-now.js",
-    "run-p": "./bin/run-all-now.js",
-    "run-s": "./bin/run-all-now.js"
+    "run-all-now": "bin/run-all-now.js",
+    "npm-run-all": "bin/npm-run-all.js",
+    "run-s": "bin/run-s.js",
+    "run-p": "bin/run-p.js"
   },
   "files": [
-    "bin",
-    "native",
-    "src",
-    "Cargo.toml",
-    "Cargo.lock",
-    "rust-toolchain.toml",
+    "bin/",
+    "lib/",
+    "index.js",
+    "index.d.ts",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
-    "build:native": "cargo build --release",
-    "check:native": "cargo check",
-    "bench": "bash bench/startup.sh",
-    "pack:dry": "npm pack --dry-run"
+    "build": "cargo build --release",
+    "test": "cargo test && cargo build && node --test test/*.test.js",
+    "test:node": "node --test test/*.test.js",
+    "lint": "cargo clippy --all-targets -- -D warnings",
+    "format": "cargo fmt --check",
+    "pack:check": "npm pack --dry-run",
+    "publish:check": "npm run format && npm run lint && npm test && npm run pack:check",
+    "comparison:image": "node scripts/render-comparison-image.js"
   },
-  "keywords": [
-    "npm-run-all",
-    "scripts",
-    "parallel",
-    "monorepo",
-    "rust"
-  ],
+  "optionalDependencies": {
+    "@run-all-now/darwin-arm64": "1.0.0",
+    "@run-all-now/darwin-x64": "1.0.0",
+    "@run-all-now/linux-arm64": "1.0.0",
+    "@run-all-now/linux-x64": "1.0.0",
+    "@run-all-now/win32-arm64": "1.0.0",
+    "@run-all-now/win32-x64": "1.0.0"
+  },
   "engines": {
     "node": ">=18"
   },

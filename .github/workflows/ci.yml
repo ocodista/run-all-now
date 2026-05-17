@@ -1,33 +1,38 @@
-name: ci
+name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-  rust:
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
-      - run: cargo fmt --check
-      - run: cargo clippy --all-targets -- -D warnings
-      - run: cargo test
-
-  npm:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - uses: dtolnay/rust-toolchain@stable
-      - run: npm install --ignore-scripts
-      - run: npm run build:native
-      - run: npm pack --dry-run
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+      - name: Install npm metadata
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Format
+        run: cargo fmt --check
+      - name: Lint
+        run: cargo clippy --all-targets -- -D warnings
+      - name: Test
+        run: npm test
+      - name: Pack check
+        run: npm run pack:check
