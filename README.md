@@ -2,7 +2,7 @@
 
 Run npm scripts in sequence or parallel without `npm-run-all`'s dependency tree.
 
-`run-all-now` is an API-compatible replacement for [`npm-run-all`](https://www.npmjs.com/package/npm-run-all). It keeps the familiar `npm-run-all`, `run-s`, and `run-p` commands, plus the CommonJS Node API, and uses one native Rust binary for orchestration.
+`run-all-now` is an API-compatible replacement for [`npm-run-all`](https://www.npmjs.com/package/npm-run-all). It keeps the familiar `npm-run-all`, `run-s`, and `run-p` commands, supports CommonJS and ESM, and uses one native Rust binary for orchestration.
 
 Original package links: [`npm-run-all` on npm](https://www.npmjs.com/package/npm-run-all), [`mysticatea/npm-run-all` on GitHub](https://github.com/mysticatea/npm-run-all).
 
@@ -65,9 +65,21 @@ run-p watch:**
 
 ## Node API
 
+CommonJS:
+
 ```js
 const runAll = require('run-all-now')
+```
 
+ESM:
+
+```js
+import runAll from 'run-all-now'
+```
+
+Use the same function in both module systems:
+
+```js
 await runAll(['clean', 'lint', 'build:*'], {
   parallel: false,
   stdout: process.stdout,
@@ -156,8 +168,6 @@ cargo clippy --all-targets -- -D warnings
 npm test
 npm run pack:check
 ```
-
-See [PUBLISHING.md](PUBLISHING.md) for release steps.
 
 ## License
 

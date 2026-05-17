@@ -25,7 +25,21 @@
   "author": "Caio Borghi",
   "type": "commonjs",
   "main": "index.js",
+  "module": "index.mjs",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./index.d.mts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
   "bin": {
     "run-all-now": "bin/run-all-now.js",
     "npm-run-all": "bin/npm-run-all.js",
@@ -36,9 +50,10 @@
     "bin/",
     "lib/",
     "index.js",
+    "index.mjs",
     "index.d.ts",
+    "index.d.mts",
     "README.md",
-    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {

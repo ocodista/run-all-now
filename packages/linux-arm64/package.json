@@ -1,12 +1,11 @@
 {
   "name": "@run-all-now/linux-arm64",
   "version": "1.0.1",
-  "description": "Native Rust binary for run-all-now on linux-arm64.",
+  "description": "Native run-all-now binary for linux-arm64.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ocodista/run-all-now.git",
-    "directory": "packages/linux-arm64"
+    "url": "git+https://github.com/ocodista/run-all-now.git"
   },
   "os": [
     "linux"
@@ -19,16 +18,5 @@
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "keywords": [
-    "run-all-now",
-    "npm-run-all",
-    "rust",
-    "native",
-    "binary",
-    "linux-arm64"
-  ],
-  "engines": {
-    "node": ">=18"
   }
 }

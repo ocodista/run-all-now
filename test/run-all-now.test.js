@@ -126,6 +126,22 @@ test("node API resolves with npm-run-all compatible result objects", async () =>
   }
 });
 
+test("ESM API resolves with the same runAll function", async () => {
+  const cwd = makeFixture();
+  const previousCwd = process.cwd();
+  process.chdir(cwd);
+  try {
+    const api = await import("run-all-now");
+    assert.equal(typeof api.default, "function");
+    assert.equal(api.runAll, api.default);
+    assert.equal(typeof api.NpmRunAllError, "function");
+    const results = await api.default(["echo:a"], { parallel: false, silent: true });
+    assert.deepEqual(results, [{ name: "echo:a", code: 0 }]);
+  } finally {
+    process.chdir(previousCwd);
+  }
+});
+
 test("node API rejects with NpmRunAllError on failed scripts", async () => {
   const cwd = makeFixture();
   const previousCwd = process.cwd();

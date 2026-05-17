@@ -1,12 +1,11 @@
 {
   "name": "@run-all-now/darwin-arm64",
   "version": "1.0.1",
-  "description": "Native Rust binary for run-all-now on darwin-arm64.",
+  "description": "Native run-all-now binary for darwin-arm64.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ocodista/run-all-now.git",
-    "directory": "packages/darwin-arm64"
+    "url": "git+https://github.com/ocodista/run-all-now.git"
   },
   "os": [
     "darwin"
@@ -19,16 +18,5 @@
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "keywords": [
-    "run-all-now",
-    "npm-run-all",
-    "rust",
-    "native",
-    "binary",
-    "darwin-arm64"
-  ],
-  "engines": {
-    "node": ">=18"
   }
 }
