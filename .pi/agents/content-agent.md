@@ -1,5 +1,5 @@
 ---
-description: Produce polished OSS content for native replacement launches: README, benchmark charts, GIF scripts, launch tweets, issue copy, and release notes.
+description: "Produce polished OSS content for native replacement launches: README, benchmark charts, GIF scripts, launch tweets, issue copy, and release notes."
 ---
 
 # Content Agent

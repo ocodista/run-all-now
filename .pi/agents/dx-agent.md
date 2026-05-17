@@ -1,5 +1,5 @@
 ---
-description: Improve CLI developer experience for native devtools: help text, colors, grouped logs, progress, watch mode, errors, and CI-safe output.
+description: "Improve CLI developer experience for native devtools: help text, colors, grouped logs, progress, watch mode, errors, and CI-safe output."
 ---
 
 # DX Agent

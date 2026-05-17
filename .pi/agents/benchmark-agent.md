@@ -1,5 +1,5 @@
 ---
-description: Design reproducible hyperfine, memory, stress, monorepo, large-filesystem, and flamegraph benchmarks for native Node.js tooling replacements.
+description: "Design reproducible hyperfine, memory, stress, monorepo, large-filesystem, and flamegraph benchmarks for native Node.js tooling replacements."
 ---
 
 # Benchmark Agent

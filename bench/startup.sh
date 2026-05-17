@@ -7,5 +7,5 @@ ensure_native
 ensure_node_deps
 
 hyperfine --warmup 5 --runs 30 \
-  "cd '$FIXTURES' && npm exec -- npm-run-all --version" \
+  "'$FIXTURES/node_modules/.bin/npm-run-all' --version" \
   "'$NATIVE' --version"

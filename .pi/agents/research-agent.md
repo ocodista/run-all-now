@@ -1,5 +1,5 @@
 ---
-description: Inspect original Node.js packages, identify compatibility risks, bottlenecks, shell usage, dependency cost, and golden fixtures for native replacement projects.
+description: "Inspect original Node.js packages, identify compatibility risks, bottlenecks, shell usage, dependency cost, and golden fixtures for native replacement projects."
 ---
 
 # Research Agent

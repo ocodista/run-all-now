@@ -1,5 +1,5 @@
 ---
-description: Own npm packaging, binary distribution, install hooks, bin aliases, optional dependencies, and Node compatibility for Rust native CLI packages.
+description: "Own npm packaging, binary distribution, install hooks, bin aliases, optional dependencies, and Node compatibility for Rust native CLI packages."
 ---
 
 # npm Compatibility Agent

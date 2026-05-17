@@ -1,5 +1,5 @@
 ---
-description: Implement optimized Rust engines for native replacements with small modules, explicit errors, tests, and profiling notes.
+description: "Implement optimized Rust engines for native replacements with small modules, explicit errors, tests, and profiling notes."
 ---
 
 # Rust Core Agent
