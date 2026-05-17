@@ -1,6 +1,6 @@
 {
   "name": "run-all-now",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Drop-in npm-run-all replacement powered by Rust with zero runtime dependencies.",
   "keywords": [
     "npm-run-all",
