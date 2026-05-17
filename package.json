@@ -20,6 +20,10 @@
   "files": [
     "bin",
     "native",
+    "src",
+    "Cargo.toml",
+    "Cargo.lock",
+    "rust-toolchain.toml",
     "README.md",
     "LICENSE"
   ],
