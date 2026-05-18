@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/run-all_logo.jpeg" alt="run-all-now logo" width="180" />
+</p>
+
 # run-all-now
 
 Run npm scripts in sequence or parallel without `npm-run-all`'s dependency tree.

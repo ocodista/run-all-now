@@ -1,6 +1,6 @@
 {
   "name": "@run-all-now/win32-arm64",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Native run-all-now binary for win32-arm64.",
   "license": "MIT",
   "repository": {

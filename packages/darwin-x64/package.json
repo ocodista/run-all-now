@@ -1,6 +1,6 @@
 {
   "name": "@run-all-now/darwin-x64",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Native run-all-now binary for darwin-x64.",
   "license": "MIT",
   "repository": {

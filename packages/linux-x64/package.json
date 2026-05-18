@@ -1,6 +1,6 @@
 {
   "name": "@run-all-now/linux-x64",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Native run-all-now binary for linux-x64.",
   "license": "MIT",
   "repository": {
